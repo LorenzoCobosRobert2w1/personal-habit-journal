@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#2C3E50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Organizador">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%232C3E50'/%3E%3Cpath d='M52 128 L82 96 L104 114 L136 74' stroke='%23D4EFDF' stroke-width='11' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='136' cy='74' r='7' fill='%23D4EFDF'/%3E%3C/svg%3E">
+<title>Organizador</title>
+<style>
+:root{
+  --ink:#2C3E50; --ink-soft:#34495E; --paper:#FBFCFD; --card:#FFFFFF;
+  --grid:#E4E8EB; --line:#D5D8DC; --muted:#8A97A0;
+  --green-bg:#D4EFDF; --green-tx:#196F3D;
+  --blue-bg:#D6EAF8; --blue-tx:#1B4F72;
+  --amber:#B9770E; --red:#A93226;
+  --nav-h:64px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,system-ui,sans-serif;
+  color:var(--ink); background:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;
+  padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+
+.top{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 14px}
+.top__title{font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.top__sub{font-size:11px;letter-spacing:.05em;opacity:.72;margin-top:2px}
+
+main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:14px;margin-bottom:14px;box-shadow:0 1px 0 rgba(44,62,80,.04)}
+.card__head{display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:12px}
+.card__head--slate{background:var(--ink);color:#fff;margin:-14px -14px 14px;
+  padding:11px 14px;border-radius:12px 12px 0 0;letter-spacing:.1em}
+.pill{background:var(--paper);border:1px solid var(--line);border-radius:999px;
+  padding:2px 10px;font-size:12px;font-weight:700;color:var(--ink-soft)}
+
+.daynav{display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;margin-bottom:14px}
+.daynav__arrow{width:44px;height:44px;border:none;background:transparent;font-size:26px;color:var(--ink);border-radius:10px;cursor:pointer}
+.daynav__arrow:active{background:var(--paper)}
+.daynav__center{text-align:center}
+.daynav__date{font-size:19px;font-weight:700}
+.daynav__wd{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+.today-btn{display:block;width:100%;margin:-6px 0 14px;padding:9px;background:transparent;
+  border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.today-btn:active{background:var(--paper)}
+
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);
+  border-radius:10px;padding:12px;min-height:48px;cursor:pointer;transition:background .12s,border-color .12s;font-family:inherit}
+.chip__mark{width:20px;height:20px;flex:0 0 20px;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--line);border-radius:6px;font-size:13px;font-weight:800;color:transparent}
+.chip__label{font-size:14px;font-weight:600;color:var(--ink-soft);text-align:left;line-height:1.15}
+.chip--habit.is-on{background:var(--green-bg);border-color:#9dd9b4}
+.chip--habit.is-on .chip__mark{border-color:var(--green-tx);color:var(--green-tx)}
+.chip--habit.is-on .chip__label{color:var(--green-tx)}
+.chip--mood.is-on{background:var(--blue-bg);border-color:#a6cdec}
+.chip--mood.is-on .chip__mark{border-color:var(--blue-tx);color:var(--blue-tx)}
+.chip--mood.is-on .chip__label{color:var(--blue-tx)}
+
+.hecho{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-family:inherit;font-size:15px;color:var(--ink);resize:vertical;background:var(--paper)}
+.hecho:focus{outline:2px solid var(--ink);outline-offset:1px}
+
+/* semana */
+.wk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+.stat__num{font-size:22px;font-weight:800;line-height:1;color:var(--ink)}
+.stat__lbl{font-size:10.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
+.stat--up .stat__num{color:var(--green-tx)}
+.stat--down .stat__num{color:var(--red)}
+.stat--flat .stat__num{color:var(--amber)}
+
+.wk-chart{width:100%}
+.chart{width:100%;height:auto;display:block}
+.b-bar{fill:var(--ink);opacity:.85}
+.b-bar--today{fill:var(--green-tx);opacity:1}
+.b-val{fill:var(--ink-soft);font-size:10px;font-weight:700;text-anchor:middle;font-family:inherit}
+.b-lbl{fill:var(--muted);font-size:11px;text-anchor:middle;font-family:inherit}
+.b-lbl--today{fill:var(--green-tx);font-weight:800}
+
+.trend__txt{font-size:13px;color:var(--muted)}
+.trend__txt--center{text-align:center;margin-top:8px}
+
+.facts{display:flex;flex-direction:column;gap:8px}
+.fact{display:flex;flex-direction:column;gap:3px;text-align:left;width:100%;
+  border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:11px 12px;cursor:pointer;font-family:inherit}
+.fact:active{background:#fff}
+.fact__when{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.fact__txt{font-size:14px;color:var(--ink);line-height:1.4;white-space:pre-wrap;word-break:break-word}
+
+.metric{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.metric:last-child{margin-bottom:0}
+.metric__name{flex:0 0 96px;font-size:13px;font-weight:600;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.metric__bar{flex:1;height:10px;border-radius:999px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.metric__fill{display:block;height:100%;border-radius:999px;opacity:.9}
+.metric__fill--g{background:var(--green-tx)}
+.metric__fill--b{background:var(--blue-tx)}
+.metric__val{flex:0 0 34px;text-align:right;font-size:13px;font-weight:700;color:var(--ink-soft)}
+
+/* editor de listas */
+.edit-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.edit-row .line{flex:1}
+.edit-del{flex:0 0 40px;height:40px;border:1px solid var(--line);background:var(--paper);border-radius:8px;
+  font-size:20px;line-height:1;color:var(--muted);cursor:pointer}
+.edit-del:active{background:#f6ddd8;border-color:#e6b0aa;color:var(--red)}
+.add-row{display:flex;gap:8px;margin-top:12px}
+.add-row .line{flex:1}
+.line{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:11px;font-family:inherit;font-size:15px;color:var(--ink)}
+.line::placeholder{color:#B7C0C7}
+.line:focus{outline:2px solid var(--ink);outline-offset:1px}
+
+.hint{font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{padding:12px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.btn:active{background:var(--paper)}
+.btn--add{flex:0 0 auto;padding:11px 16px}
+.btn--danger{grid-column:1 / -1;border-color:#e6b0aa;color:var(--red)}
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;height:calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);display:flex;background:#fff;border-top:1px solid var(--line)}
+.nav__btn{flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--muted)}
+.nav__ico{font-size:19px;line-height:1}
+.nav__btn.is-active{color:var(--ink)}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px);transform:translateX(-50%) translateY(12px);
+  background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;z-index:10;max-width:90%;text-align:center}
+.toast.is-show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top__title">Organizador</div>
+  <div class="top__sub">Tus objetivos, día a día</div>
+</header>
+
+<main id="view"></main>
+
+<nav class="nav">
+  <button class="nav__btn is-active" data-tab="dia"><span class="nav__ico">✓</span>Día</button>
+  <button class="nav__btn" data-tab="semana"><span class="nav__ico">📊</span>Semana</button>
+  <button class="nav__btn" data-tab="ajustes"><span class="nav__ico">⚙</span>Ajustes</button>
+</nav>
+
+<script>
+(function () {
+  "use strict";
+
+  /* -------------------------------------------------------------- defaults */
+  var DEFAULT_OBJ = ["Gimnasio", "Nutrición", "Pantallas", "Noche",
+                     "Dormir", "Leer", "Estudiar", "Meditar"];
+  var DEFAULT_MET = ["Felicidad", "Paz", "Productividad", "Energía"];
+  var KEY = "organizador_v2";
+  var WEEKDAYS = ["Domingo", "Lunes", "Martes", "Miércoles",
+                  "Jueves", "Viernes", "Sábado"];
+  var WD_SHORT = ["D", "L", "M", "M", "J", "V", "S"];
+  var MONTHS = ["ene", "feb", "mar", "abr", "may", "jun",
+                "jul", "ago", "sep", "oct", "nov", "dic"];
+
+  /* ----------------------------------------------------------- date helpers */
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function iso(dt) { return dt.getFullYear() + "-" + pad(dt.getMonth() + 1) + "-" + pad(dt.getDate()); }
+  function addDays(s, n) { var dt = parse(s); dt.setDate(dt.getDate() + n); return iso(dt); }
+  function label(s) { var dt = parse(s); return dt.getDate() + " " + MONTHS[dt.getMonth()]; }
+  function weekday(s) { return WEEKDAYS[parse(s).getDay()]; }
+  function wd3(s) { return WEEKDAYS[parse(s).getDay()].slice(0, 3); }
+  function mondayOf(s) { var dt = parse(s); var g = dt.getDay(); dt.setDate(dt.getDate() + (g === 0 ? -6 : 1 - g)); return iso(dt); }
+  function weekDates(mon) { var a = []; for (var i = 0; i < 7; i++) a.push(addDays(mon, i)); return a; }
+  var TODAY = iso(new Date());
+
+  /* --------------------------------------------------------------- id maker */
+  var seq = 0;
+  function uid(p) { seq++; return (p || "x") + Date.now().toString(36) + seq.toString(36); }
+
+  /* ------------------------------------------------------------------ state */
+  var state = { version: 2, objetivos: [], metricas: [], days: {} };
+
+  function seedDefaults() {
+    state.objetivos = DEFAULT_OBJ.map(function (n, i) { return { id: "o" + i, name: n }; });
+    state.metricas  = DEFAULT_MET.map(function (n, i) { return { id: "m" + i, name: n }; });
+  }
+
+  function load() {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) {}
+    if (!raw) { migrateV1OrSeed(); return; }
+    try {
+      var p = JSON.parse(raw);
+      state.objetivos = (p.objetivos && p.objetivos.length) ? p.objetivos : null;
+      state.metricas  = (p.metricas && p.metricas.length) ? p.metricas : null;
+      state.days = p.days || {};
+      if (!state.objetivos || !state.metricas) seedDefaults();
+    } catch (e) { seedDefaults(); }
+  }
+
+  function migrateV1OrSeed() {
+    var old = null;
+    try { old = localStorage.getItem("organizador_v1"); } catch (e) {}
+    seedDefaults();
+    if (!old) return;
+    try {
+      var p = JSON.parse(old);
+      var days = p.days || {};
+      Object.keys(days).forEach(function (d) {
+        var r = days[d], done = {}, mood = {};
+        (r.habits || []).forEach(function (v, i) { if (v && i < 8) done["o" + i] = true; });
+        (r.scores || []).forEach(function (v, i) { if (v && i < 4) mood["m" + i] = true; });
+        state.days[d] = { hecho: r.hecho || "", done: done, mood: mood };
+      });
+      save();
+    } catch (e) {}
+  }
+
+  var persists = true;
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { if (persists) { persists = false; toast("Vista previa: el guardado funciona al abrirlo en tu navegador."); } }
+  }
+
+  function day(d) {
+    if (!state.days[d]) state.days[d] = { hecho: "", done: {}, mood: {} };
+    var r = state.days[d];
+    if (!r.done) r.done = {}; if (!r.mood) r.mood = {}; if (r.hecho == null) r.hecho = "";
+    return r;
+  }
+  function objDone(d, id) { var r = state.days[d]; return !!(r && r.done && r.done[id]); }
+  function moodDone(d, id) { var r = state.days[d]; return !!(r && r.mood && r.mood[id]); }
+  function dayTotal(d) {
+    var r = state.days[d]; if (!r || !r.done) return 0; var c = 0;
+    state.objetivos.forEach(function (o) { if (r.done[o.id]) c++; }); return c;
+  }
+
+  /* ------------------------------------------------------------- selection */
+  var sel = TODAY;
+  var weekMon = mondayOf(TODAY);
+  var tab = "dia";
+  var root = document.getElementById("view");
+
+  function render() {
+    if (tab === "dia") renderDia();
+    else if (tab === "semana") renderSemana();
+    else renderAjustes();
+    document.querySelectorAll(".nav__btn").forEach(function (b) {
+      b.classList.toggle("is-active", b.dataset.tab === tab);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  /* ============================================================== VISTA DÍA */
+  function renderDia() {
+    var d = day(sel);
+    var n = state.objetivos.length;
+    var html = "";
+
+    html += '<div class="daynav">';
+    html += '  <button class="daynav__arrow" id="prevDay" aria-label="Día anterior">‹</button>';
+    html += '  <div class="daynav__center">';
+    html += '    <div class="daynav__date">' + label(sel) + (sel === TODAY ? ' · Hoy' : '') + '</div>';
+    html += '    <div class="daynav__wd">' + weekday(sel) + '</div>';
+    html += '  </div>';
+    html += '  <button class="daynav__arrow" id="nextDay" aria-label="Día siguiente">›</button>';
+    html += '</div>';
+    if (sel !== TODAY) html += '<button class="today-btn" id="goToday">Volver a hoy</button>';
+
+    html += '<div class="card">';
+    html += '  <div class="card__head"><span>Objetivos</span><span class="pill" id="dayPill">' + dayTotal(sel) + '/' + n + '</span></div>';
+    if (n === 0) {
+      html += '  <p class="hint">Todavía no cargaste objetivos. Andá a <b>Ajustes</b> para elegir los tuyos.</p>';
+    } else {
+      html += '  <div class="chips">';
+      state.objetivos.forEach(function (o) {
+        var on = objDone(sel, o.id);
+        html += '<button class="chip chip--habit' + (on ? " is-on" : "") + '" data-obj="' + o.id + '">' +
+                '<span class="chip__mark">' + (on ? "✔" : "") + '</span>' +
+                '<span class="chip__label">' + esc(o.name) + '</span></button>';
+      });
+      html += '  </div>';
+    }
+    html += '</div>';
+
+    html += '<div class="card">';
+    html += '  <div class="card__head"><span>Hecho memorable</span></div>';
+    html += '  <textarea id="hecho" class="hecho" rows="2" placeholder="Algo que quieras recordar de hoy…"></textarea>';
+    html += '</div>';
+
+    if (state.metricas.length) {
+      html += '<div class="card">';
+      html += '  <div class="card__head"><span>Puntuación del día</span></div>';
+      html += '  <div class="chips">';
+      state.metricas.forEach(function (m) {
+        var on = moodDone(sel, m.id);
+        html += '<button class="chip chip--mood' + (on ? " is-on" : "") + '" data-mood="' + m.id + '">' +
+                '<span class="chip__mark">' + (on ? "✔" : "") + '</span>' +
+                '<span class="chip__label">' + esc(m.name) + '</span></button>';
+      });
+      html += '  </div>';
+      html += '</div>';
+    }
+
+    root.innerHTML = html;
+    document.getElementById("hecho").value = d.hecho;
+
+    document.getElementById("prevDay").onclick = function () { sel = addDays(sel, -1); renderDia(); };
+    document.getElementById("nextDay").onclick = function () { sel = addDays(sel, 1); renderDia(); };
+    var gt = document.getElementById("goToday"); if (gt) gt.onclick = function () { sel = TODAY; renderDia(); };
+
+    root.querySelectorAll("[data-obj]").forEach(function (btn) {
+      btn.onclick = function () {
+        var id = btn.dataset.obj; d.done[id] = !d.done[id]; if (!d.done[id]) delete d.done[id]; save();
+        var on = !!d.done[id];
+        btn.classList.toggle("is-on", on);
+        btn.querySelector(".chip__mark").textContent = on ? "✔" : "";
+        document.getElementById("dayPill").textContent = dayTotal(sel) + "/" + n;
+      };
+    });
+    root.querySelectorAll("[data-mood]").forEach(function (btn) {
+      btn.onclick = function () {
+        var id = btn.dataset.mood; d.mood[id] = !d.mood[id]; if (!d.mood[id]) delete d.mood[id]; save();
+        var on = !!d.mood[id];
+        btn.classList.toggle("is-on", on);
+        btn.querySelector(".chip__mark").textContent = on ? "✔" : "";
+      };
+    });
+    var ta = document.getElementById("hecho");
+    ta.oninput = function () { d.hecho = ta.value; save(); };
+  }
+
+  /* =========================================================== VISTA SEMANA */
+  function weekSum(mon) { var s = 0; weekDates(mon).forEach(function (d) { s += dayTotal(d); }); return s; }
+
+  function renderSemana() {
+    var dates = weekDates(weekMon);
+    var sun = dates[6];
+    var totals = dates.map(dayTotal);
+    var done = totals.reduce(function (a, b) { return a + b; }, 0);
+    var n = state.objetivos.length;
+    var possible = n * 7;
+    var pct = possible ? Math.round(done / possible * 100) : 0;
+
+    var prevDone = weekSum(addDays(weekMon, -7));
+    var delta = done - prevDone;
+    var dir = delta > 0 ? "up" : (delta < 0 ? "down" : "flat");
+    var arrow = delta > 0 ? "↑" : (delta < 0 ? "↓" : "→");
+    var trendTxt = delta > 0 ? "+" + delta + " vs. semana anterior"
+                 : delta < 0 ? delta + " vs. semana anterior"
+                 : "igual que la semana anterior";
+
+    var best = 0, bestDay = -1;
+    totals.forEach(function (t, i) { if (t > best) { best = t; bestDay = i; } });
+
+    var html = "";
+    html += '<div class="daynav">';
+    html += '  <button class="daynav__arrow" id="prevWk" aria-label="Semana anterior">‹</button>';
+    html += '  <div class="daynav__center">';
+    html += '    <div class="daynav__date">' + label(weekMon) + ' – ' + label(sun) + '</div>';
+    html += '    <div class="daynav__wd">' + (weekMon === mondayOf(TODAY) ? 'Esta semana' : 'Lunes a domingo') + '</div>';
+    html += '  </div>';
+    html += '  <button class="daynav__arrow" id="nextWk" aria-label="Semana siguiente">›</button>';
+    html += '</div>';
+    if (weekMon !== mondayOf(TODAY)) html += '<button class="today-btn" id="goThisWk">Volver a esta semana</button>';
+
+    /* resumen */
+    html += '<div class="card">';
+    html += '  <div class="card__head"><span>Resumen de la semana</span><span class="pill">' + pct + '%</span></div>';
+    html += '  <div class="wk-stats">';
+    html += '    <div class="stat"><div class="stat__num">' + done + '</div><div class="stat__lbl">marcados</div></div>';
+    html += '    <div class="stat"><div class="stat__num">' + (bestDay >= 0 ? WD_SHORT[parse(dates[bestDay]).getDay()] : '–') + '</div><div class="stat__lbl">mejor día</div></div>';
+    html += '    <div class="stat stat--' + dir + '"><div class="stat__num">' + arrow + '</div><div class="stat__lbl">' + (delta > 0 ? '+' + delta : (delta < 0 ? delta : '=')) + '</div></div>';
+    html += '  </div>';
+    html += '  <div class="wk-chart">' + weekChart(dates, totals, n) + '</div>';
+    html += '  <div class="trend__txt trend__txt--center">' + trendTxt + '</div>';
+    html += '</div>';
+
+    /* por objetivo */
+    if (n) {
+      html += '<div class="card">';
+      html += '  <div class="card__head"><span>Objetivos (días cumplidos)</span></div>';
+      state.objetivos.forEach(function (o) {
+        var c = 0; dates.forEach(function (d) { if (objDone(d, o.id)) c++; });
+        var w = Math.round(c / 7 * 100);
+        html += '<div class="metric"><span class="metric__name">' + esc(o.name) + '</span>' +
+                '<span class="metric__bar"><span class="metric__fill metric__fill--g" style="width:' + w + '%"></span></span>' +
+                '<span class="metric__val">' + c + '/7</span></div>';
+      });
+      html += '</div>';
+    }
+
+    /* por métrica */
+    if (state.metricas.length) {
+      html += '<div class="card">';
+      html += '  <div class="card__head"><span>Puntuación (días marcados)</span></div>';
+      state.metricas.forEach(function (m) {
+        var c = 0; dates.forEach(function (d) { if (moodDone(d, m.id)) c++; });
+        var w = Math.round(c / 7 * 100);
+        html += '<div class="metric"><span class="metric__name">' + esc(m.name) + '</span>' +
+                '<span class="metric__bar"><span class="metric__fill metric__fill--b" style="width:' + w + '%"></span></span>' +
+                '<span class="metric__val">' + c + '/7</span></div>';
+      });
+      html += '</div>';
+    }
+
+    /* hechos memorables de la semana */
+    var facts = [];
+    dates.forEach(function (d) {
+      var r = state.days[d];
+      var h = r && r.hecho ? r.hecho.trim() : "";
+      if (h) facts.push({ d: d, h: h });
+    });
+    html += '<div class="card">';
+    html += '  <div class="card__head"><span>Hechos memorables</span><span class="pill">' + facts.length + '</span></div>';
+    if (!facts.length) {
+      html += '  <p class="hint">Todavía no anotaste hechos esta semana. Escribilos en la pestaña Día.</p>';
+    } else {
+      html += '  <div class="facts">';
+      facts.forEach(function (f) {
+        html += '<button class="fact" data-date="' + f.d + '">' +
+                '<span class="fact__when">' + wd3(f.d) + ' ' + label(f.d) + '</span>' +
+                '<span class="fact__txt">' + esc(f.h) + '</span></button>';
+      });
+      html += '  </div>';
+    }
+    html += '</div>';
+
+    root.innerHTML = html;
+    root.querySelectorAll(".fact").forEach(function (btn) {
+      btn.onclick = function () { sel = btn.dataset.date; tab = "dia"; render(); };
+    });
+    document.getElementById("prevWk").onclick = function () { weekMon = addDays(weekMon, -7); renderSemana(); };
+    document.getElementById("nextWk").onclick = function () { weekMon = addDays(weekMon, 7); renderSemana(); };
+    var gw = document.getElementById("goThisWk"); if (gw) gw.onclick = function () { weekMon = mondayOf(TODAY); renderSemana(); };
+  }
+
+  function weekChart(dates, totals, n) {
+    var W = 320, H = 128, PB = 22, PT = 10, PL = 6, PR = 6;
+    var maxY = Math.max(1, n);
+    var innerW = W - PL - PR, innerH = H - PT - PB;
+    var slot = innerW / 7, bw = slot * 0.56;
+    var bars = "";
+    for (var i = 0; i < 7; i++) {
+      var t = totals[i];
+      var bh = (t / maxY) * innerH;
+      var x = PL + i * slot + (slot - bw) / 2;
+      var y = PT + innerH - bh;
+      var isToday = dates[i] === TODAY;
+      bars += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) +
+              '" height="' + Math.max(0, bh).toFixed(1) + '" rx="3" class="b-bar' + (isToday ? ' b-bar--today' : '') + '"/>';
+      if (t > 0) bars += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" class="b-val">' + t + '</text>';
+      bars += '<text x="' + (PL + i * slot + slot / 2).toFixed(1) + '" y="' + (H - 6) + '" class="b-lbl' + (isToday ? ' b-lbl--today' : '') + '">' + WD_SHORT[parse(dates[i]).getDay()] + '</text>';
+    }
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet">' + bars + '</svg>';
+  }
+
+  /* ========================================================= VISTA AJUSTES */
+  function renderAjustes() {
+    var html = "";
+    html += '<div class="card">';
+    html += '  <div class="card__head card__head--slate">Mis objetivos</div>';
+    html += '  <p class="hint">Estos son los hábitos que marcás cada día. Editalos, borralos o agregá los tuyos.</p>';
+    html += '  <div id="objEd"></div>';
+    html += '  <div class="add-row"><input type="text" id="objNew" class="line" placeholder="Nuevo objetivo…"><button class="btn btn--add" id="objAdd">Agregar</button></div>';
+    html += '</div>';
+
+    html += '<div class="card">';
+    html += '  <div class="card__head card__head--slate">Mi puntuación</div>';
+    html += '  <p class="hint">Lo que evaluás al final del día (ánimo, energía, etc.).</p>';
+    html += '  <div id="metEd"></div>';
+    html += '  <div class="add-row"><input type="text" id="metNew" class="line" placeholder="Nueva métrica…"><button class="btn btn--add" id="metAdd">Agregar</button></div>';
+    html += '</div>';
+
+    html += '<div class="card">';
+    html += '  <div class="card__head">Copia de seguridad</div>';
+    html += '  <p class="hint">Tu registro se guarda en este dispositivo. Exportá un respaldo cada tanto para no perderlo.</p>';
+    html += '  <div class="btns">';
+    html += '    <button class="btn" id="expJson">Exportar respaldo</button>';
+    html += '    <button class="btn" id="impJson">Importar respaldo</button>';
+    html += '    <button class="btn" id="expCsv">Exportar a Excel (CSV)</button>';
+    html += '    <button class="btn btn--danger" id="wipe">Borrar todo</button>';
+    html += '  </div>';
+    html += '  <input type="file" id="file" accept="application/json,.json" hidden>';
+    html += '</div>';
+
+    root.innerHTML = html;
+    buildEditor("objEd", state.objetivos);
+    buildEditor("metEd", state.metricas);
+
+    document.getElementById("objAdd").onclick = function () { addItem("objNew", state.objetivos, "o"); };
+    document.getElementById("metAdd").onclick = function () { addItem("metNew", state.metricas, "m"); };
+    document.getElementById("objNew").onkeydown = function (e) { if (e.key === "Enter") addItem("objNew", state.objetivos, "o"); };
+    document.getElementById("metNew").onkeydown = function (e) { if (e.key === "Enter") addItem("metNew", state.metricas, "m"); };
+
+    document.getElementById("expJson").onclick = exportJson;
+    document.getElementById("expCsv").onclick = exportCsv;
+    document.getElementById("impJson").onclick = function () { document.getElementById("file").click(); };
+    document.getElementById("file").onchange = importJson;
+    document.getElementById("wipe").onclick = wipe;
+  }
+
+  function buildEditor(boxId, arr) {
+    var box = document.getElementById(boxId);
+    box.innerHTML = "";
+    arr.forEach(function (item, idx) {
+      var row = document.createElement("div"); row.className = "edit-row";
+      var inp = document.createElement("input"); inp.type = "text"; inp.className = "line"; inp.value = item.name;
+      inp.oninput = function () { item.name = inp.value; save(); };
+      var del = document.createElement("button"); del.className = "edit-del"; del.textContent = "×"; del.setAttribute("aria-label", "Borrar");
+      del.onclick = function () { arr.splice(idx, 1); save(); buildEditor(boxId, arr); };
+      row.appendChild(inp); row.appendChild(del); box.appendChild(row);
+    });
+    if (!arr.length) { var e = document.createElement("p"); e.className = "hint"; e.textContent = "Lista vacía — agregá al menos uno abajo."; box.appendChild(e); }
+  }
+
+  function addItem(inputId, arr, prefix) {
+    var inp = document.getElementById(inputId);
+    var v = inp.value.trim(); if (!v) return;
+    arr.push({ id: uid(prefix), name: v }); inp.value = ""; save();
+    buildEditor(prefix === "o" ? "objEd" : "metEd", arr); inp.focus();
+  }
+
+  /* ------------------------------------------------------------- backup i/o */
+  function download(name, text, type) {
+    var blob = new Blob([text], { type: type }), url = URL.createObjectURL(blob);
+    var a = document.createElement("a"); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+  function exportJson() { download("organizador_" + TODAY + ".json", JSON.stringify(state, null, 2), "application/json"); }
+  function exportCsv() {
+    var head = ["Fecha", "Hecho"].concat(state.objetivos.map(function (o) { return o.name; }), ["Total"], state.metricas.map(function (m) { return m.name; }));
+    var rows = [head.join(",")];
+    var keys = Object.keys(state.days).sort();
+    keys.forEach(function (d) {
+      var r = state.days[d];
+      var cells = [d, '"' + (r.hecho || "").replace(/"/g, '""') + '"'];
+      state.objetivos.forEach(function (o) { cells.push(r.done && r.done[o.id] ? "SI" : ""); });
+      cells.push(dayTotal(d));
+      state.metricas.forEach(function (m) { cells.push(r.mood && r.mood[m.id] ? "SI" : ""); });
+      rows.push(cells.join(","));
+    });
+    download("organizador_" + TODAY + ".csv", "\uFEFF" + rows.join("\r\n"), "text/csv");
+  }
+  function importJson(ev) {
+    var f = ev.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var p = JSON.parse(reader.result);
+        if (p.objetivos && p.objetivos.length) state.objetivos = p.objetivos;
+        if (p.metricas && p.metricas.length) state.metricas = p.metricas;
+        state.days = p.days || {};
+        save(); render(); toast("Respaldo importado");
+      } catch (e) { toast("No se pudo leer el archivo"); }
+    };
+    reader.readAsText(f); ev.target.value = "";
+  }
+  function wipe() {
+    if (!confirm("¿Borrar todo el registro de este dispositivo? No se puede deshacer.")) return;
+    state.days = {}; save(); render(); toast("Registro borrado");
+  }
+
+  /* ------------------------------------------------------------------ utils */
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var toastEl;
+  function toast(msg) {
+    if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "toast"; document.body.appendChild(toastEl); }
+    toastEl.textContent = msg; toastEl.classList.add("is-show");
+    clearTimeout(toast._t); toast._t = setTimeout(function () { toastEl.classList.remove("is-show"); }, 1900);
+  }
+
+  /* -------------------------------------------------------------------- init */
+  document.querySelectorAll(".nav__btn").forEach(function (b) {
+    b.onclick = function () { tab = b.dataset.tab; render(); };
+  });
+  load();
+  render();
+})();
+
+</script>
+<script>
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
