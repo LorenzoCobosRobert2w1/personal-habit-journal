@@ -19,7 +19,49 @@
   --blue-bg:#D6EAF8; --blue-tx:#1B4F72;
   --amber:#B9770E; --red:#A93226;
   --nav-h:64px;
+
+  /* Libro / Cuaderno variables (hojas crema por defecto) */
+  --book-leather:#5D3A1A;
+  --book-leather-dark:#3E240E;
+  --book-stitch:rgba(215,175,115,.48);
+  --book-page:#FDF8EC;
+  --book-page-edge:#EAE0C8;
+  --book-ink:#2B2118;
+  --book-ink-soft:#5C4938;
+  --book-ink-muted:#8C7762;
+  --book-rule:rgba(139,109,76,.17);
+  --book-margin:rgba(192,86,75,.28);
+  --book-box-bg:rgba(93,58,26,.04);
+  --book-box-border:rgba(139,109,76,.26);
+  --book-chip-bg:#F6EFE0;
 }
+
+body.is-dark{
+  --ink:#ECF0F1; --ink-soft:#BDC3C7; --paper:#12171D; --card:#1B232C;
+  --grid:#1E2732; --line:#2C3947; --muted:#7F8C8D;
+  --green-bg:rgba(25,111,61,.28); --green-tx:#58D68D;
+  --blue-bg:rgba(27,79,114,.32); --blue-tx:#5DADE2;
+
+  /* Tapa marrón en ambiente oscuro */
+  --book-leather:#4A2C12;
+  --book-leather-dark:#2A1808;
+  --book-stitch:rgba(195,155,95,.38);
+}
+
+/* Modo oscuro con hojas oscuras y letras blancas */
+body.is-dark:not(.is-cream-in-dark){
+  --book-page:#1C1B1A;
+  --book-page-edge:#2C2A28;
+  --book-ink:#FFFFFF;
+  --book-ink-soft:#E5E0D8;
+  --book-ink-muted:#A69F94;
+  --book-rule:rgba(255,255,255,.11);
+  --book-margin:rgba(231,111,81,.32);
+  --book-box-bg:rgba(255,255,255,.04);
+  --book-box-border:rgba(255,255,255,.18);
+  --book-chip-bg:#282624;
+}
+
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
@@ -29,12 +71,61 @@ body{
   background-size:22px 22px;
   padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));
   -webkit-font-smoothing:antialiased;
+  transition:background-color .2s,color .2s;
 }
 
-.top{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;
-  padding:calc(env(safe-area-inset-top) + 14px) 18px 14px}
+.top{position:sticky;top:0;z-index:5;background:#2C3E50;color:#fff;
+  padding:calc(env(safe-area-inset-top) + 12px) 18px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.is-dark .top{background:#161E27;border-bottom:1px solid var(--line)}
 .top__title{font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .top__sub{font-size:11px;letter-spacing:.05em;opacity:.72;margin-top:2px}
+.top__actions{display:flex;align-items:center;gap:8px}
+
+/* Botón con logo de luna en el banner */
+.theme-btn{
+  border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.1);color:#fff;
+  border-radius:999px;padding:6px 11px;font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:background .15s,border-color .15s
+}
+.theme-btn:active{background:rgba(255,255,255,.22)}
+.moon-logo{
+  width:16px;height:16px;display:block;flex:0 0 16px;
+  transition:transform .25s ease, color .2s ease;
+}
+body.is-dark .moon-logo{color:#F6D365;transform:rotate(-12deg)}
+
+/* Selector rápido de hoja crema/oscura cuando el modo oscuro está activo */
+.sheet-mode-btn{
+  display:none;
+  align-items:center;
+  gap:6px;
+  border:1px solid rgba(253,248,236,.35);
+  background:rgba(253,248,236,.12);
+  color:#FDF8EC;
+  border-radius:999px;
+  padding:6px 11px;
+  font-family:inherit;
+  font-size:11.5px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s, border-color .15s, color .15s;
+}
+body.is-dark .sheet-mode-btn{display:flex}
+body.is-dark.is-cream-in-dark .sheet-mode-btn{
+  background:#FDF8EC;
+  color:#3E240E;
+  border-color:#EAE0C8;
+}
+.sheet-dot{
+  width:11px;height:11px;border-radius:50%;
+  background:#FDF8EC;border:1.5px solid rgba(0,0,0,.3);
+  display:inline-block;flex:0 0 11px;
+}
+body.is-dark:not(.is-cream-in-dark) .sheet-dot{
+  background:#1C1B1A;border-color:rgba(255,255,255,.65);
+}
 
 main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
 
@@ -42,7 +133,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   padding:14px;margin-bottom:14px;box-shadow:0 1px 0 rgba(44,62,80,.04)}
 .card__head{display:flex;justify-content:space-between;align-items:center;
   font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:12px}
-.card__head--slate{background:var(--ink);color:#fff;margin:-14px -14px 14px;
+.card__head--slate{background:#2C3E50;color:#fff;margin:-14px -14px 14px;
   padding:11px 14px;border-radius:12px 12px 0 0;letter-spacing:.1em}
 .pill{background:var(--paper);border:1px solid var(--line);border-radius:999px;
   padding:2px 10px;font-size:12px;font-weight:700;color:var(--ink-soft)}
@@ -75,6 +166,271 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
 .hecho{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-family:inherit;font-size:15px;color:var(--ink);resize:vertical;background:var(--paper)}
 .hecho:focus{outline:2px solid var(--ink);outline-offset:1px}
 
+/* ================================================== CUADERNO / LIBRO ESTILO */
+.notebook-cover{
+  position:relative;
+  background:linear-gradient(145deg, var(--book-leather) 0%, var(--book-leather-dark) 100%);
+  padding:13px 13px 16px 20px;
+  border-radius:10px 18px 18px 10px;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.28),
+    inset 0 1px 1px rgba(255,255,255,.15),
+    inset 6px 0 12px rgba(0,0,0,.45);
+  border:1px solid #2A1607;
+  margin-bottom:14px;
+  perspective:1400px;
+  overflow:hidden;
+}
+/* Costura del cuero */
+.notebook-cover::before{
+  content:"";
+  position:absolute;
+  top:7px; right:7px; bottom:7px; left:11px;
+  border:1.5px dashed var(--book-stitch);
+  border-radius:6px 13px 13px 6px;
+  pointer-events:none;
+}
+/* Cinta marcapáginas */
+.notebook-ribbon{
+  position:absolute;
+  top:-2px; right:28px;
+  width:16px; height:32px;
+  background:linear-gradient(180deg,#8E2424 0%,#B03030 100%);
+  box-shadow:0 3px 6px rgba(0,0,0,.35);
+  z-index:3;
+  clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+}
+/* Anillos / lomo izquierdo */
+.notebook-spine{
+  position:absolute;
+  left:4px; top:22px; bottom:22px; width:10px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  z-index:3; pointer-events:none;
+}
+.notebook-ring{
+  width:13px; height:6px;
+  background:linear-gradient(90deg,#3A2A1D,#B39874 50%,#4A3525);
+  border-radius:4px;
+  box-shadow:0 1px 2px rgba(0,0,0,.6);
+}
+
+/* Hoja del libro */
+.notebook-page{
+  position:relative;
+  background-color:var(--book-page);
+  color:var(--book-ink);
+  border-radius:3px 11px 11px 3px;
+  padding:20px 16px 22px 26px;
+  transform-origin:left center;
+  backface-visibility:hidden;
+  box-shadow:
+    inset 14px 0 20px -12px rgba(0,0,0,.22),
+    3px 3px 0 var(--book-page-edge),
+    6px 6px 0 rgba(0,0,0,.18);
+  transition:background-color .25s, color .25s, box-shadow .25s;
+}
+/* Animación suave y fina al pasar la hoja */
+@keyframes pageTurnNext{
+  0%{
+    opacity:1;
+    transform:perspective(1400px) rotateY(0deg) translateX(0) scale(1);
+    box-shadow:inset 14px 0 20px -12px rgba(0,0,0,.22), -8px 0 18px rgba(0,0,0,.15);
+  }
+  45%{
+    opacity:.68;
+    transform:perspective(1400px) rotateY(-24deg) translateX(-6px) scale(.992);
+    box-shadow:inset 32px 0 36px -12px rgba(0,0,0,.35), 14px 4px 24px rgba(0,0,0,.28);
+  }
+  55%{
+    opacity:.68;
+    transform:perspective(1400px) rotateY(18deg) translateX(4px) scale(.995);
+  }
+  100%{
+    opacity:1;
+    transform:perspective(1400px) rotateY(0deg) translateX(0) scale(1);
+  }
+}
+@keyframes pageTurnPrev{
+  0%{
+    opacity:1;
+    transform:perspective(1400px) rotateY(0deg) translateX(0) scale(1);
+  }
+  45%{
+    opacity:.68;
+    transform:perspective(1400px) rotateY(22deg) translateX(6px) scale(.992);
+    box-shadow:inset 26px 0 32px -10px rgba(0,0,0,.32), -10px 4px 22px rgba(0,0,0,.24);
+  }
+  55%{
+    opacity:.68;
+    transform:perspective(1400px) rotateY(-16deg) translateX(-4px) scale(.995);
+  }
+  100%{
+    opacity:1;
+    transform:perspective(1400px) rotateY(0deg) translateX(0) scale(1);
+  }
+}
+.notebook-page.is-turning-next{
+  animation:pageTurnNext .46s cubic-bezier(.22,.61,.36,1);
+}
+.notebook-page.is-turning-prev{
+  animation:pageTurnPrev .46s cubic-bezier(.22,.61,.36,1);
+}
+
+/* Margen rojo vertical clásico de cuaderno */
+.notebook-page::before{
+  content:"";
+  position:absolute;
+  top:0; bottom:0; left:18px;
+  width:1.5px;
+  background:var(--book-margin);
+  pointer-events:none;
+}
+
+.book-header{
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:2px double var(--book-box-border);
+  padding-bottom:10px; margin-bottom:14px;
+}
+.book-header__nav{
+  display:flex; align-items:center; gap:6px;
+}
+.book-pg-btn{
+  width:36px; height:36px; border:1px solid var(--book-box-border);
+  background:var(--book-box-bg); color:var(--book-ink);
+  border-radius:8px; font-size:21px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s, transform .12s;
+}
+.book-pg-btn:active{transform:scale(.94);opacity:.75}
+.book-date-wrap{text-align:left}
+.book-date-main{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:18px; font-weight:700; color:var(--book-ink);
+}
+.book-date-sub{
+  font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--book-ink-muted); margin-top:2px;
+}
+
+.book-section-label{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:12px; font-style:italic;
+  color:var(--book-ink-muted);
+  margin-bottom:6px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+
+/* Área de escritura libre con renglones */
+.book-writing{
+  width:100%;
+  min-height:224px;
+  border:none;
+  background-color:transparent;
+  background-image:repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 31px,
+    var(--book-rule) 31px,
+    var(--book-rule) 32px
+  );
+  background-attachment:local;
+  color:var(--book-ink);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:16px;
+  line-height:32px;
+  padding:0 4px;
+  resize:vertical;
+  display:block;
+}
+.book-writing::placeholder{color:var(--book-ink-muted);font-style:italic}
+.book-writing:focus{outline:none}
+
+/* Sección opcional de las preguntas diarias y nocturnas en el libro */
+.book-questions-toggle{
+  width:100%;
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px dashed var(--book-box-border);
+  background:var(--book-box-bg);
+  color:var(--book-ink);
+  border-radius:8px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:13.5px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  text-align:left;
+}
+.book-questions-toggle:active{opacity:.8}
+
+.book-questions-box{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--book-box-border);
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.book-q-group{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.book-q-group-head{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--book-ink-soft);
+  border-bottom:1px solid var(--book-rule);
+  padding-bottom:4px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.book-q-item{
+  background:var(--book-box-bg);
+  border:1px solid var(--book-box-border);
+  border-radius:8px;
+  padding:10px 11px;
+}
+.book-q-title{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:13.5px;
+  font-weight:700;
+  color:var(--book-ink);
+  margin-bottom:6px;
+}
+.book-input{
+  width:100%;
+  border:none;
+  border-bottom:1px dashed var(--book-box-border);
+  background:transparent;
+  color:var(--book-ink);
+  padding:5px 2px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:14.5px;
+  line-height:1.45;
+  resize:vertical;
+}
+.book-input::placeholder{color:var(--book-ink-muted);font-style:italic}
+.book-input:focus{outline:none;border-bottom-color:var(--book-ink)}
+
+.book-footer{
+  margin-top:14px;
+  padding-top:8px;
+  border-top:1px solid var(--book-rule);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:11.5px;
+  color:var(--book-ink-muted);
+}
+
 /* semana */
 .wk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
 .stat{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
@@ -98,7 +454,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
 .facts{display:flex;flex-direction:column;gap:8px}
 .fact{display:flex;flex-direction:column;gap:3px;text-align:left;width:100%;
   border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:11px 12px;cursor:pointer;font-family:inherit}
-.fact:active{background:#fff}
+.fact:active{background:var(--card)}
 .fact__when{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .fact__txt{font-size:14px;color:var(--ink);line-height:1.4;white-space:pre-wrap;word-break:break-word}
 
@@ -125,37 +481,59 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
 
 .hint{font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.5}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{padding:12px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.btn{padding:12px;border:1px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
 .btn:active{background:var(--paper)}
 .btn--add{flex:0 0 auto;padding:11px 16px}
 .btn--danger{grid-column:1 / -1;border-color:#e6b0aa;color:var(--red)}
 
+/* Modal de confirmación in-page */
+.confirm-box{margin-top:10px;padding:12px;border:1px solid #e6b0aa;background:rgba(169,50,38,.08);border-radius:10px;display:none}
+.confirm-box.is-open{display:block}
+.confirm-box__txt{font-size:13px;color:var(--ink);margin:0 0 10px;font-weight:600}
+.confirm-box__actions{display:flex;gap:8px}
+.confirm-box__actions .btn{flex:1;padding:9px}
+
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:6;height:calc(var(--nav-h) + env(safe-area-inset-bottom));
-  padding-bottom:env(safe-area-inset-bottom);display:flex;background:#fff;border-top:1px solid var(--line)}
+  padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--card);border-top:1px solid var(--line)}
 .nav__btn{flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--muted)}
 .nav__ico{font-size:19px;line-height:1}
 .nav__btn.is-active{color:var(--ink)}
 
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px);transform:translateX(-50%) translateY(12px);
-  background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;
+  background:#2C3E50;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;
   transition:opacity .2s,transform .2s;z-index:10;max-width:90%;text-align:center}
 .toast.is-show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
 
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="top__title">Organizador</div>
-  <div class="top__sub">Tus objetivos, día a día</div>
+  <div>
+    <div class="top__title">Organizador</div>
+    <div class="top__sub">Tus objetivos, día a día</div>
+  </div>
+  <div class="top__actions">
+    <button class="sheet-mode-btn" id="creamSheetToggle" title="Alternar hojas color crema u oscuras en modo oscuro">
+      <span class="sheet-dot" aria-hidden="true"></span>
+      <span id="creamSheetLabel">Hoja crema</span>
+    </button>
+    <button class="theme-btn" id="themeToggle" aria-label="Cambiar modo oscuro">
+      <svg class="moon-logo" id="themeIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="themeLabel">Modo oscuro</span>
+    </button>
+  </div>
 </header>
 
 <main id="view"></main>
 
 <nav class="nav">
   <button class="nav__btn is-active" data-tab="dia"><span class="nav__ico">✓</span>Día</button>
+  <button class="nav__btn" data-tab="libro"><span class="nav__ico">📖</span>Libro</button>
   <button class="nav__btn" data-tab="semana"><span class="nav__ico">📊</span>Semana</button>
   <button class="nav__btn" data-tab="ajustes"><span class="nav__ico">⚙</span>Ajustes</button>
 </nav>
@@ -175,6 +553,18 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   var MONTHS = ["ene", "feb", "mar", "abr", "may", "jun",
                 "jul", "ago", "sep", "oct", "nov", "dic"];
 
+  /* Preguntas del Libro: 3 de la mañana (del día) y 3 de la noche (nocturnas) */
+  var MORNING_QUESTIONS = [
+    { key: "q_imp", label: "¿Qué es lo más importante para mí hoy?", ph: "Mi prioridad o enfoque principal de hoy…" },
+    { key: "q_ser", label: "¿Quién elijo ser hoy?", ph: "La actitud, presencia y valores que elijo…" },
+    { key: "q_dar", label: "¿Qué le puedo dar al mundo hoy?", ph: "Mi aporte o gesto hacia los demás hoy…" }
+  ];
+  var NIGHT_QUESTIONS = [
+    { key: "q_mejor", label: "¿Hiciste lo mejor que pudiste?", ph: "Reflexión sincera sobre mi entrega de hoy…" },
+    { key: "q_mejorar", label: "¿Pude haberlo hecho mejor?", ph: "Qué aprendí o qué puedo ajustar mañana…" },
+    { key: "q_agradecer", label: "¿Qué puedo agradecer que viví hoy?", ph: "Momentos, personas o detalles que agradezco…" }
+  ];
+
   /* ----------------------------------------------------------- date helpers */
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
   function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
@@ -192,7 +582,15 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   function uid(p) { seq++; return (p || "x") + Date.now().toString(36) + seq.toString(36); }
 
   /* ------------------------------------------------------------------ state */
-  var state = { version: 2, objetivos: [], metricas: [], days: {} };
+  var state = {
+    version: 2,
+    darkMode: false,
+    creamInDark: false,
+    showBookQuestions: true,
+    objetivos: [],
+    metricas: [],
+    days: {}
+  };
 
   function seedDefaults() {
     state.objetivos = DEFAULT_OBJ.map(function (n, i) { return { id: "o" + i, name: n }; });
@@ -208,6 +606,9 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
       state.objetivos = (p.objetivos && p.objetivos.length) ? p.objetivos : null;
       state.metricas  = (p.metricas && p.metricas.length) ? p.metricas : null;
       state.days = p.days || {};
+      state.darkMode = !!p.darkMode;
+      state.creamInDark = !!p.creamInDark;
+      state.showBookQuestions = p.showBookQuestions !== undefined ? !!p.showBookQuestions : true;
       if (!state.objetivos || !state.metricas) seedDefaults();
     } catch (e) { seedDefaults(); }
   }
@@ -224,7 +625,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
         var r = days[d], done = {}, mood = {};
         (r.habits || []).forEach(function (v, i) { if (v && i < 8) done["o" + i] = true; });
         (r.scores || []).forEach(function (v, i) { if (v && i < 4) mood["m" + i] = true; });
-        state.days[d] = { hecho: r.hecho || "", done: done, mood: mood };
+        state.days[d] = { hecho: r.hecho || "", pagina: r.pagina || "", done: done, mood: mood, qs: {} };
       });
       save();
     } catch (e) {}
@@ -237,9 +638,13 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   }
 
   function day(d) {
-    if (!state.days[d]) state.days[d] = { hecho: "", done: {}, mood: {} };
+    if (!state.days[d]) state.days[d] = { hecho: "", pagina: "", done: {}, mood: {}, qs: {} };
     var r = state.days[d];
-    if (!r.done) r.done = {}; if (!r.mood) r.mood = {}; if (r.hecho == null) r.hecho = "";
+    if (!r.done) r.done = {};
+    if (!r.mood) r.mood = {};
+    if (!r.qs) r.qs = {};
+    if (r.hecho == null) r.hecho = "";
+    if (r.pagina == null) r.pagina = "";
     return r;
   }
   function objDone(d, id) { var r = state.days[d]; return !!(r && r.done && r.done[id]); }
@@ -249,14 +654,42 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
     state.objetivos.forEach(function (o) { if (r.done[o.id]) c++; }); return c;
   }
 
+  /* ------------------------------------------------------------- dark mode */
+  function applyTheme() {
+    document.body.classList.toggle("is-dark", !!state.darkMode);
+    document.body.classList.toggle("is-cream-in-dark", !!(state.darkMode && state.creamInDark));
+    var lbl = document.getElementById("themeLabel");
+    if (lbl) lbl.textContent = state.darkMode ? "Modo oscuro: ON" : "Modo oscuro";
+    var sheetLbl = document.getElementById("creamSheetLabel");
+    if (sheetLbl) sheetLbl.textContent = state.creamInDark ? "Hoja crema" : "Hoja oscura";
+  }
+
+  function toggleTheme() {
+    state.darkMode = !state.darkMode;
+    save();
+    applyTheme();
+    if (tab === "ajustes") render();
+  }
+
+  function toggleCreamInDark() {
+    state.creamInDark = !state.creamInDark;
+    save();
+    applyTheme();
+    toast(state.creamInDark ? "Hojas del libro en color crema" : "Hojas del libro en modo oscuro");
+    if (tab === "ajustes") render();
+  }
+
   /* ------------------------------------------------------------- selection */
   var sel = TODAY;
   var weekMon = mondayOf(TODAY);
   var tab = "dia";
+  var pageTurnDir = "";
   var root = document.getElementById("view");
 
   function render() {
+    applyTheme();
     if (tab === "dia") renderDia();
+    else if (tab === "libro") renderLibro();
     else if (tab === "semana") renderSemana();
     else renderAjustes();
     document.querySelectorAll(".nav__btn").forEach(function (b) {
@@ -342,6 +775,135 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
     });
     var ta = document.getElementById("hecho");
     ta.oninput = function () { d.hecho = ta.value; save(); };
+  }
+
+  /* ============================================================ VISTA LIBRO */
+  function turnBookPage(delta) {
+    pageTurnDir = delta > 0 ? "is-turning-next" : "is-turning-prev";
+    sel = addDays(sel, delta);
+    renderLibro();
+  }
+
+  function renderLibro() {
+    var d = day(sel);
+    var animClass = pageTurnDir ? " " + pageTurnDir : "";
+    pageTurnDir = "";
+    var html = "";
+
+    if (sel !== TODAY) {
+      html += '<button class="today-btn" id="bookGoToday">Volver a la página de hoy (' + label(TODAY) + ')</button>';
+    }
+
+    html += '<div class="notebook-cover">';
+    html += '  <div class="notebook-ribbon" aria-hidden="true"></div>';
+    html += '  <div class="notebook-spine" aria-hidden="true">';
+    for (var r = 0; r < 6; r++) {
+      html += '<span class="notebook-ring"></span>';
+    }
+    html += '  </div>';
+
+    html += '  <div class="notebook-page' + animClass + '" id="notebookPage">';
+    html += '    <div class="book-header">';
+    html += '      <div class="book-date-wrap">';
+    html += '        <div class="book-date-main">' + weekday(sel) + ', ' + label(sel) + (sel === TODAY ? ' · Hoy' : '') + '</div>';
+    html += '        <div class="book-date-sub">Cuaderno personal · ' + sel.slice(0, 4) + '</div>';
+    html += '      </div>';
+    html += '      <div class="book-header__nav">';
+    html += '        <button class="book-pg-btn" id="prevBookDay" aria-label="Página anterior" title="Página anterior">‹</button>';
+    html += '        <button class="book-pg-btn" id="nextBookDay" aria-label="Página siguiente" title="Página siguiente">›</button>';
+    html += '      </div>';
+    html += '    </div>';
+
+    html += '    <div class="book-section-label">';
+    html += '      <span>Página libre del día</span>';
+    html += '      <span id="wordCount">0 palabras</span>';
+    html += '    </div>';
+    html += '    <textarea id="bookPageText" class="book-writing" rows="8" placeholder="Querido diario… Escribí libremente todo lo que quieras sobre tu día en esta hoja."></textarea>';
+
+    /* Botón para desplegar u ocultar las preguntas diarias y nocturnas */
+    html += '    <button class="book-questions-toggle" id="toggleBookQuestions">';
+    html += '      <span>✒️ Responder las preguntas diarias (opcional)</span>';
+    html += '      <span id="qToggleArrow">' + (state.showBookQuestions ? '▲' : '▼') + '</span>';
+    html += '    </button>';
+
+    if (state.showBookQuestions) {
+      html += '    <div class="book-questions-box" id="bookQuestionsBox">';
+
+      /* Bloque 1: Preguntas del día (mañana) */
+      html += '      <div class="book-q-group">';
+      html += '        <div class="book-q-group-head"><span>☀️ Preguntas del día</span></div>';
+      MORNING_QUESTIONS.forEach(function (q) {
+        html += '      <div class="book-q-item">';
+        html += '        <div class="book-q-title">' + esc(q.label) + '</div>';
+        html += '        <textarea class="book-input" rows="2" data-qkey="' + q.key + '" placeholder="' + esc(q.ph) + '"></textarea>';
+        html += '      </div>';
+      });
+      html += '      </div>';
+
+      /* Bloque 2: Preguntas nocturnas */
+      html += '      <div class="book-q-group">';
+      html += '        <div class="book-q-group-head"><span>🌙 Preguntas nocturnas</span></div>';
+      NIGHT_QUESTIONS.forEach(function (q) {
+        html += '      <div class="book-q-item">';
+        html += '        <div class="book-q-title">' + esc(q.label) + '</div>';
+        html += '        <textarea class="book-input" rows="2" data-qkey="' + q.key + '" placeholder="' + esc(q.ph) + '"></textarea>';
+        html += '      </div>';
+      });
+      html += '      </div>';
+
+      html += '    </div>';
+    }
+
+    html += '    <div class="book-footer">';
+    html += '      <span>Guardado automático</span>';
+    html += '      <span>Fecha: ' + sel + '</span>';
+    html += '    </div>';
+    html += '  </div>';
+    html += '</div>';
+
+    root.innerHTML = html;
+
+    var pageTa = document.getElementById("bookPageText");
+    pageTa.value = d.pagina || "";
+    function updateWords() {
+      var trimmed = pageTa.value.trim();
+      var count = trimmed ? trimmed.split(/\s+/).length : 0;
+      var wc = document.getElementById("wordCount");
+      if (wc) wc.textContent = count + (count === 1 ? " palabra" : " palabras");
+    }
+    updateWords();
+
+    pageTa.oninput = function () {
+      d.pagina = pageTa.value;
+      save();
+      updateWords();
+    };
+
+    root.querySelectorAll("[data-qkey]").forEach(function (ta) {
+      var k = ta.dataset.qkey;
+      ta.value = (d.qs && d.qs[k]) ? d.qs[k] : "";
+      ta.oninput = function () {
+        if (!d.qs) d.qs = {};
+        d.qs[k] = ta.value;
+        save();
+      };
+    });
+
+    document.getElementById("prevBookDay").onclick = function () { turnBookPage(-1); };
+    document.getElementById("nextBookDay").onclick = function () { turnBookPage(1); };
+    var bgt = document.getElementById("bookGoToday");
+    if (bgt) bgt.onclick = function () {
+      var diff = parse(TODAY) > parse(sel) ? 1 : -1;
+      pageTurnDir = diff > 0 ? "is-turning-next" : "is-turning-prev";
+      sel = TODAY;
+      renderLibro();
+    };
+
+    document.getElementById("toggleBookQuestions").onclick = function () {
+      state.showBookQuestions = !state.showBookQuestions;
+      save();
+      renderLibro();
+    };
   }
 
   /* =========================================================== VISTA SEMANA */
@@ -473,6 +1035,17 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   function renderAjustes() {
     var html = "";
     html += '<div class="card">';
+    html += '  <div class="card__head card__head--slate">Apariencia y cuaderno</div>';
+    html += '  <p class="hint">Podés usar el modo oscuro con hojas oscuras (letras blancas) o mantener las hojas del libro en color crema.</p>';
+    html += '  <div class="btns">';
+    html += '    <button class="btn" id="settingsDarkBtn">' +
+                 (state.darkMode ? '🌙 Modo oscuro: Activado' : '🌙 Activar modo oscuro') + '</button>';
+    html += '    <button class="btn" id="settingsCreamBtn">' +
+                 (state.creamInDark ? '📜 Hojas en oscuro: Crema' : '🌑 Hojas en oscuro: Oscuras') + '</button>';
+    html += '  </div>';
+    html += '</div>';
+
+    html += '<div class="card">';
     html += '  <div class="card__head card__head--slate">Mis objetivos</div>';
     html += '  <p class="hint">Estos son los hábitos que marcás cada día. Editalos, borralos o agregá los tuyos.</p>';
     html += '  <div id="objEd"></div>';
@@ -495,6 +1068,13 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
     html += '    <button class="btn" id="expCsv">Exportar a Excel (CSV)</button>';
     html += '    <button class="btn btn--danger" id="wipe">Borrar todo</button>';
     html += '  </div>';
+    html += '  <div class="confirm-box" id="wipeConfirm">';
+    html += '    <p class="confirm-box__txt">¿Borrar todo el registro de este dispositivo? No se puede deshacer.</p>';
+    html += '    <div class="confirm-box__actions">';
+    html += '      <button class="btn" id="wipeCancel">Cancelar</button>';
+    html += '      <button class="btn btn--danger" id="wipeYes">Sí, borrar todo</button>';
+    html += '    </div>';
+    html += '  </div>';
     html += '  <input type="file" id="file" accept="application/json,.json" hidden>';
     html += '</div>';
 
@@ -502,6 +1082,8 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
     buildEditor("objEd", state.objetivos);
     buildEditor("metEd", state.metricas);
 
+    document.getElementById("settingsDarkBtn").onclick = toggleTheme;
+    document.getElementById("settingsCreamBtn").onclick = toggleCreamInDark;
     document.getElementById("objAdd").onclick = function () { addItem("objNew", state.objetivos, "o"); };
     document.getElementById("metAdd").onclick = function () { addItem("metNew", state.metricas, "m"); };
     document.getElementById("objNew").onkeydown = function (e) { if (e.key === "Enter") addItem("objNew", state.objetivos, "o"); };
@@ -512,6 +1094,12 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
     document.getElementById("impJson").onclick = function () { document.getElementById("file").click(); };
     document.getElementById("file").onchange = importJson;
     document.getElementById("wipe").onclick = wipe;
+    document.getElementById("wipeCancel").onclick = function () {
+      document.getElementById("wipeConfirm").classList.remove("is-open");
+    };
+    document.getElementById("wipeYes").onclick = function () {
+      state.days = {}; save(); render(); toast("Registro borrado");
+    };
   }
 
   function buildEditor(boxId, arr) {
@@ -544,12 +1132,26 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   }
   function exportJson() { download("organizador_" + TODAY + ".json", JSON.stringify(state, null, 2), "application/json"); }
   function exportCsv() {
-    var head = ["Fecha", "Hecho"].concat(state.objetivos.map(function (o) { return o.name; }), ["Total"], state.metricas.map(function (m) { return m.name; }));
+    var qCols = MORNING_QUESTIONS.concat(NIGHT_QUESTIONS);
+    var head = ["Fecha", "Hecho", "Libro"].concat(
+      qCols.map(function (q) { return q.label; }),
+      state.objetivos.map(function (o) { return o.name; }),
+      ["Total"],
+      state.metricas.map(function (m) { return m.name; })
+    );
     var rows = [head.join(",")];
     var keys = Object.keys(state.days).sort();
     keys.forEach(function (d) {
       var r = state.days[d];
-      var cells = [d, '"' + (r.hecho || "").replace(/"/g, '""') + '"'];
+      var cells = [
+        d,
+        '"' + (r.hecho || "").replace(/"/g, '""') + '"',
+        '"' + (r.pagina || "").replace(/"/g, '""') + '"'
+      ];
+      qCols.forEach(function (q) {
+        var ans = (r.qs && r.qs[q.key]) ? r.qs[q.key] : "";
+        cells.push('"' + ans.replace(/"/g, '""') + '"');
+      });
       state.objetivos.forEach(function (o) { cells.push(r.done && r.done[o.id] ? "SI" : ""); });
       cells.push(dayTotal(d));
       state.metricas.forEach(function (m) { cells.push(r.mood && r.mood[m.id] ? "SI" : ""); });
@@ -565,6 +1167,8 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
         var p = JSON.parse(reader.result);
         if (p.objetivos && p.objetivos.length) state.objetivos = p.objetivos;
         if (p.metricas && p.metricas.length) state.metricas = p.metricas;
+        if (p.darkMode !== undefined) state.darkMode = !!p.darkMode;
+        if (p.creamInDark !== undefined) state.creamInDark = !!p.creamInDark;
         state.days = p.days || {};
         save(); render(); toast("Respaldo importado");
       } catch (e) { toast("No se pudo leer el archivo"); }
@@ -572,8 +1176,8 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
     reader.readAsText(f); ev.target.value = "";
   }
   function wipe() {
-    if (!confirm("¿Borrar todo el registro de este dispositivo? No se puede deshacer.")) return;
-    state.days = {}; save(); render(); toast("Registro borrado");
+    var box = document.getElementById("wipeConfirm");
+    if (box) box.classList.toggle("is-open");
   }
 
   /* ------------------------------------------------------------------ utils */
@@ -586,6 +1190,8 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 24px}
   }
 
   /* -------------------------------------------------------------------- init */
+  document.getElementById("themeToggle").onclick = toggleTheme;
+  document.getElementById("creamSheetToggle").onclick = toggleCreamInDark;
   document.querySelectorAll(".nav__btn").forEach(function (b) {
     b.onclick = function () { tab = b.dataset.tab; render(); };
   });
